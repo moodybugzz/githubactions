@@ -1,20 +1,41 @@
-name: Licensed
-
+name: Build & Push Docker Image to Amazon ECR using AWS OIDC IAM role
 on:
-  push: {branches: main}
-  pull_request: {branches: main}
+  push:
+    branches:
+      - "master"
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
-    name: Check licenses
+    
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - name: Install licensed
-        run: |
-          cd $RUNNER_TEMP
-          curl -Lfs -o licensed.tar.gz https://github.com/github/licensed/releases/download/2.12.2/licensed-2.12.2-linux-x64.tar.gz
-          sudo tar -xzf licensed.tar.gz
-          sudo mv licensed /usr/local/bin/licensed
-      - run: licensed status
+      - name: Checkout ml-common repo
+        uses: actions/checkout@v3
+        with:
+           repository: flutter/samples.git
+           ref: main
+      - name: Clone repository
+        run: git clone https://github.com/flutter/samples.git
+      - name: Upload artifactBuild
+        uses: actions/upload-artifact@master
+        with:
+           path: add_to_app
+
+  
+  build-on-work-branch:
+    needs: build
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Download artifact 
+      uses: actions/download-artifact@master
+      with:
+        name: 
+        path: 
+
+        run: ls -alt add_to_app
+
+   
