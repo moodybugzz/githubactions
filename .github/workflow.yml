@@ -1,0 +1,44 @@
+name: Build & Push Docker Image to Amazon ECR using AWS OIDC IAM role
+on:
+  push:
+    branches:
+      - "ISOPS-456"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout ml-common repo
+        uses: actions/checkout@v3
+        with:
+           repository: Iterative-Scopes/ml-common
+           ref: TJ-149-extended
+           ssh-key: ${{ secrets.SSH_KEY }}
+      - name: Clone repository
+        run: git clone git@github.com:Iterative-Scopes/ml-common.git
+      - name: Upload ml-common artifactBuild
+        uses: actions/upload-artifact@master
+        with:
+           path: ml-common
+
+  
+  build-on-work-branch:
+    needs: build
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Download ml-common artifact 
+      uses: actions/download-artifact@master
+      with:
+        name: artifact
+        path: ml-common
+
+        run: ls -alt ml-common
+
+    
+      
+  
